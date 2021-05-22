@@ -10,7 +10,7 @@
         <i class="fa fa-search" id="search-icon"></i>
       </div>
       <div class="row">
-        <div class="col-4 col-md-3 col-lg-2" v-for="(item, index) in releases" :key="index">
+        <div class="col-6 col-md-4 col-lg-2" v-for="(item, index) in releases" :key="index">
           <div class="release-item-container">
             <div class="release-item-wrapper">
               <img class="release-item-thumb" v-lazy="item.thumb" onerror="this.src='./404.png'">
@@ -67,12 +67,12 @@
       this.fetchData();
     },
     methods:{
-      fetchData:function (type='release') {
+      fetchData:function () {
         this.loading=true;
-        let url=`${constants.discorgs_api_prefix}artists/108713/releases?sort=year&page=${this.curr_page}&per_page=${this.per_page}&${constants.discorgs_credential}`
-        if(type==='search'){
-          let keyword=this.keyword;
-          url=`${constants.discorgs_api_prefix}/database/search?q=${keyword}&artist=Nickelback&page=${this.curr_page}&per_page=${this.per_page}&${constants.discorgs_credential}`
+        let keyword=this.keyword;
+        let url=`${constants.discorgs_api_prefix}/database/search?type=release&page=${this.curr_page}&per_page=${this.per_page}&${constants.discorgs_credential}`
+        if(keyword!==''){
+          url+=`&q=${keyword}`
         }
         axios.get(url, {
           method: 'get',
@@ -81,7 +81,7 @@
           response=>{
             this.pages=response.data.pagination.pages;
             this.loading=false;
-            this.releases=response.data.releases;
+            this.releases=response.data.results;
           },
           error=>{
             this.loading=false;
@@ -104,7 +104,7 @@
       keywordChange:function () {
           clearTimeout(this.search_timer);
           this.search_timer=setTimeout(()=>{
-              console.log(this.keyword);
+              this.fetchData();
           },500)
       }
     }
